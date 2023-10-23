@@ -17,6 +17,9 @@ conda create -n epik python=3.8
 Download and install dependencies
 
 ```bash
+conda actitvate epik
+
+
 git clone git@github.com:cmarti/epik.git
 cd epik
 python setup.py install
