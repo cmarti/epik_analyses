@@ -8,6 +8,33 @@ This repository contains code for generating R2 curves for a range of training p
 - [gpmap-tools](https://github.com/cmarti/gpmap-tools)
 - [epik](https://github.com/cmarti/epik)
 
+Create a new environment
+
+```bash
+conda create -n epik python=3.8
+```
+
+Download and install dependencies
+
+```bash
+git clone git@github.com:cmarti/epik.git
+cd epik
+python setup.py install
+cd ..
+
+git clone git@github.com:cmarti/gpmap_tools.git
+cd gpmap_tools
+python setup.py install
+cd ..
+```
+
+Download repository
+
+```
+git clone git@github.com:cmarti/epik_analyses.git
+```
+
+
 ### Datasets
 
 The datasets included can be found in the folder `datasets`. Each consists of a CSV file with the sequence and their associated measurement with the uncertainty. The scripts will only compute those that are not commented out in the file `datasets.txt`, which can be sued to compute the CV curves on subsets of the datasets
