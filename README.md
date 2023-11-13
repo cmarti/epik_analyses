@@ -20,12 +20,12 @@ Download and install dependencies
 conda actitvate epik
 
 
-git clone git@github.com:cmarti/epik.git
+git clone https://github.com:cmarti/epik.git
 cd epik
 python setup.py install
 cd ..
 
-git clone git@github.com:cmarti/gpmap_tools.git
+git clone https://github.com/cmarti/gpmap-tools.git
 cd gpmap_tools
 python setup.py install
 cd ..
