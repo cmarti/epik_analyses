@@ -157,7 +157,7 @@ if __name__ == '__main__':
         plot_theta_heatmap(theta, dataset)
         plot_nonlinearity(pred, data, dataset)
     
-    for dataset in ['yeast', 'yeast.37C']:
+    for dataset in ['yeast_li', 'yeast.37C']:
         theta, pred, data = read_theta(dataset, id)
         theta = theta.values.min(1).flatten()
         manhattanplot(dataset, theta)

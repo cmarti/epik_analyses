@@ -32,16 +32,16 @@ def read_r2_curve(dataset):
 
 
 def plot_r2_curves(axes, data, title='', metric='mse'):
-    order = ['Additive', 'Pairwise', 'Additive GE', 'Pairwise GE', 'RBF', 'VC', 'Rho', 'ARD']
-    colors = ['grey', 'cyan', 'salmon', 'darkred', 'darkorange', 'blue', 'purple', 'black']
+    order = ['Additive', 'Pairwise', 'Global epistasis', 'Exponential', 'Variance Component', 'Connectedness', 'Jenga', 'GeneralProduct']
+    colors = ['silver', 'gray', 'salmon', 'violet', 'slateblue', 'purple', 'black', 'gold']
     palette = dict(zip(order, colors))
     obs = data['kernel'].unique()
     order = [x for x in order if x in obs]
-    lw = 0.75
+    lw = 0.6
     sns.lineplot(x='p', y=metric, hue='kernel',
                  hue_order=order, lw=lw, palette=palette,
                  data=data, ax=axes, err_style="bars",
-                 err_kws={'capsize': 2, 'lw': lw}, errorbar='sd')
+                 err_kws={'capsize': 1.5, 'capthick': lw, 'lw': lw}, errorbar='sd')
     axes.grid(alpha=0.2)
 
     ylabel = r'Test $R^2$' if metric == 'r2' else metric.upper()
@@ -55,30 +55,35 @@ def plot_r2_curves(axes, data, title='', metric='mse'):
 
 
 if __name__ == '__main__':
+    metric = 'r2'
     dataset_labels = {'gb1': 'Protein GB1',
                       'aav': 'AAV2 Capside', 
                       'smn1': 'SMN1 5´splice site',
-                      'yeast': 'Yeast growth in Li',
-                      'yeast.37C': 'Yeast growth at 37ºC'}
-    # dataset = 'yeast.37C'
-    metric = 'r2'
-    # metric = 'loglikelihood'
-    # dataset = sys.argv[1]
-    # metric = sys.argv[2]
+                      'yeast_li': 'Yeast growth in Li',
+                      'yeast_li_hq': 'Yeast growth in Li',
+                      'qtls_li': 'Yeast growth in Li',
+                      'qtls_li_hq': 'Yeast growth in Li',
+                      'yeast_37C': 'Yeast growth at 37ºC',
+                      'yeast_30C': 'Yeast growth at 30ºC'}
+    
+    
+    datasets = ['yeast_li'] #, 'yeast_li_hq', 'qtls_li', 'qtls_li_hq']
 
-    for dataset in dataset_labels.keys():
-        print('=== R2 curve for {} dataset ==='.format(dataset))
-        data = read_r2_curve(dataset)
+    for dataset in datasets:
+        fpath = 'r2/{}.cv_curves.csv'.format(dataset)
+        print('Reading CV curves from {}'.format(fpath))
+        data = pd.read_csv(fpath, index_col=0)
         print(data)
+        data.loc[data['kernel'] == 'mavenn', 'kernel'] = 'Global epistasis' 
+        data.loc[data['kernel'] == 'RBF', 'kernel'] = 'Exponential' 
+        data.loc[data['kernel'] == 'Rho', 'kernel'] = 'Connectedness' 
+        data.loc[data['kernel'] == 'ARD', 'kernel'] = 'Jenga' 
+        data.loc[data['kernel'] == 'VC', 'kernel'] = 'Variance Component' 
 
-        try:
-            print('\tPlotting R2 curves')
-            fig, axes = plt.subplots(1, 1, figsize=(4, 3.5))
-            plot_r2_curves(axes, data, title=dataset_labels[dataset], metric=metric)
-            fig.tight_layout()
-            fig.savefig('plots/{}.{}.svg'.format(dataset, metric), format='svg', dpi=300)
-            fig.savefig('plots/{}.{}.png'.format(dataset, metric), format='png', dpi=300)
-        except ValueError:
-            continue
+        print('\tPlotting {} curve for dataset: {}'.format(metric.upper(), dataset))
+        fig, axes = plt.subplots(1, 1, figsize=(4, 3.5))
+        plot_r2_curves(axes, data, title=dataset_labels[dataset], metric=metric)
+        fig.tight_layout()
+        fig.savefig('plots/{}.{}.svg'.format(dataset, metric), format='svg', dpi=300)
+        fig.savefig('plots/{}.{}.png'.format(dataset, metric), format='png', dpi=300)
     print('Done')
-

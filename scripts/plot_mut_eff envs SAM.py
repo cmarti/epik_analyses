@@ -20,7 +20,8 @@ def manhattan_heatmap(values, annotations):
     fig.subplots_adjust(right=0.85, left=0.12, bottom=0.2)
     cmap = cm.get_cmap('binary')
     axes.set_facecolor(cmap(0.1))
-    sns.heatmap(values, ax=axes, cmap='Blues', 
+    sns.heatmap(values, ax=axes, cmap='seismic', 
+                center=0,
                 # vmin=-6,
                 # vmax=2,
                 cbar_ax=cbar_axes,
@@ -46,24 +47,17 @@ def manhattan_heatmap(values, annotations):
 
     sns.despine(ax=cbar_axes, right=False, top=False, bottom=False, left=False)
 
-    fig.savefig('plots/yeast_envs.mut_eff.png', dpi=300)
-    fig.savefig('plots/yeast_envs.mut_eff.pdf', dpi=300)  
+    fig.savefig('plots/yeast_envs.mut_eff_sam.png', dpi=300)
+    fig.savefig('plots/yeast_envs.mut_eff_sam.pdf', dpi=300)  
     
 
 if __name__ == '__main__':
+    values = np.load('datasets/l21_linear_effects.npy')
     annotations = pd.read_csv('datasets/yeast_annotations.csv', index_col=0)
     annotations['pos'] = np.arange(annotations.shape[0])
-    environments = [line.strip() for line in open('environments.txt')]
     
-    params = []
-    for environment in environments:
-        env_params = []
-        for i in range(5):
-            print('Environment {}: rep {}'.format(environment, i))
-            p = read_params(environment, id=str(i))
-            env_params.append(p)
-        params.append(np.vstack(env_params).mean(0))
-    params = pd.DataFrame(params, index=environments)
+    environments = [line.strip() for line in open('environments.txt')]
+    params = pd.DataFrame(values, index=sorted(environments)).loc[environments, :]
     manhattan_heatmap(params, annotations)
     
     
