@@ -1,4 +1,5 @@
-for dataset in $(grep -v '^#' datasets.txt)
+for dataset in aav # qtls_li_hq # $(grep -v '^#' datasets.txt)
 do
-	split_data "datasets/$dataset.csv" -r 5 -o splits.csv -p splits/$dataset --seed 0 -m 10000 -f csv
+	split_data "datasets/$dataset.csv" --ps training_p.txt -r 3 -o splits.csv -p splits/$dataset --seed 0 -m 10000 -f csv
 done
+

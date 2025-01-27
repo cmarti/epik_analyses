@@ -32,7 +32,8 @@ def read_r2_curve(dataset):
 
 
 def plot_r2_curves(axes, data, title='', metric='mse'):
-    order = ['Additive', 'Pairwise', 'Global epistasis', 'Exponential', 'Variance Component', 'Connectedness', 'Jenga', 'GeneralProduct']
+    labels = {'r2': 'Test $R^2$', 'rmse': 'rmse', 'logit_r2': r'$\log_2\left(\frac{V_{model}}{V_{res}}\right)$'}
+    order = ['Additive', 'Pairwise', 'Global epistasis', 'Exponential', 'Variance Component', 'Connectedness', 'Jenga', 'AddRho']
     colors = ['silver', 'gray', 'salmon', 'violet', 'slateblue', 'purple', 'black', 'gold']
     palette = dict(zip(order, colors))
     obs = data['kernel'].unique()
@@ -44,14 +45,18 @@ def plot_r2_curves(axes, data, title='', metric='mse'):
                  err_kws={'capsize': 1.5, 'capthick': lw, 'lw': lw}, errorbar='sd')
     axes.grid(alpha=0.2)
 
-    ylabel = r'Test $R^2$' if metric == 'r2' else metric.upper()
 
+    ylabel = labels[metric]
+
+    axes.legend(loc=4, fontsize=8, frameon=False, ncol=2)
     axes.set(xlabel='Proportion of training data',
              ylabel=ylabel,
-             ylim=(0, 1) if metric == 'r2' else (None, None),
-             xlim=(0, 1),
-             title=title)
-    axes.legend(loc=4, fontsize=8, frameon=False)
+            #  ylim=(0, 1) if metric == 'r2' else (None, None),
+            #  xlim=(0, 1),
+             title=title,
+             xscale='log',
+            #  yscale='logit',
+             )
 
 
 if __name__ == '__main__':
@@ -67,13 +72,17 @@ if __name__ == '__main__':
                       'yeast_30C': 'Yeast growth at 30ºC'}
     
     
-    datasets = ['yeast_li'] #, 'yeast_li_hq', 'qtls_li', 'qtls_li_hq']
+    datasets = ['qtls_li_hq', 'aav', 'smn1', 'gb1'] # 'yeast_li_hq', 'qtls_li', 'qtls_li_hq']
+    # datasets = ['qtls_li_hq', 'yeast_li_hq', 'qtls_li', 'yeast_li']
+    # datasets = ['aav']
 
     for dataset in datasets:
         fpath = 'r2/{}.cv_curves.csv'.format(dataset)
         print('Reading CV curves from {}'.format(fpath))
         data = pd.read_csv(fpath, index_col=0)
         print(data)
+        # data = data.loc[data['kernel'] != 'pairwise', :]
+        data['logit_r2'] = np.log2(data['r2'] /(1 - data['r2']))
         data.loc[data['kernel'] == 'mavenn', 'kernel'] = 'Global epistasis' 
         data.loc[data['kernel'] == 'RBF', 'kernel'] = 'Exponential' 
         data.loc[data['kernel'] == 'Rho', 'kernel'] = 'Connectedness' 

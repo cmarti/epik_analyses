@@ -19,12 +19,12 @@ if __name__ == '__main__':
         fig, subplots = plt.subplots(2, 3, figsize=(9, 6))
 
         cols = ['data', 'prior', 'map']
-        lim = (-0.05, 1.05)
+        lim = (-0.1, 1.05)
         for i, field in enumerate(cols):
 
             axes = subplots[0, i]
             plot.plot_visualization(axes, covs, edges_df=edges, x='x', y=field,
-                                    nodes_size=7.5, nodes_color='grey', nodes_alpha=0.3,
+                                    nodes_size=7.5, nodes_color='grey', nodes_alpha=0.6,
                                     edges_color='lightgrey', edges_alpha=0.2)
             
             df = covs[['d', field, '{}_ns'.format(field)]]

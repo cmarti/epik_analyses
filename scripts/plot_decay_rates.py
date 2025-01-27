@@ -65,7 +65,7 @@ def read_decay_factors(dataset, id=None, kernel='Rho', mutation_level=False):
                      'aav': ['R', 'K', 'Q', 'E', 'D', 'N', 'H', 'S', 'T', 'A',
                              'V', 'I', 'L', 'M', 'P', 'G', 'Y', 'F', 'W', 'C'],
                      'smn1': ['A', 'C', 'G', 'U']}
-    positions = {'smn1': ['-3', '-2', '-1', '+2', '+3', '+4', '+5', '+6'],
+    positions = {'smn1': ['-3', '-2', '-1', '+1', '+2', '+3', '+4', '+5', '+6'],
                  'gb1': ['39', '40', '41', '54'],
                  'aav': [str(x) for x in range(561, 589)]}
 
@@ -203,9 +203,9 @@ if __name__ == '__main__':
     id='53'
 
     for dataset in ['aav']:
-        decay_factors = read_decay_factors(dataset, id=id, kernel='Rho', mutation_level=False).mean(1)
-        decay_factors.to_csv('results/{}.Rho.decay_factors.csv'.format(datasetbaner))
-        exit()
+        # decay_factors = read_decay_factors(dataset, id=id, kernel='Rho', mutation_level=False).mean(1)
+        # decay_factors.to_csv('results/{}.Rho.decay_factors.csv'.format(dataset))
+        # exit()
         
         decay_factors = read_decay_factors(dataset, kernel=kernel, mutation_level=False)
         decay_factors.to_csv('results/{}.decay_factors.csv'.format(dataset))

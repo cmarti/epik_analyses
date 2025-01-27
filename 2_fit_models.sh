@@ -1,28 +1,38 @@
 ngpu=1
 out_dir="output"
-activate="conda activate epik"
-epik="EpiK -n 100"                           # n number of training iterations
-submit="qsub -cwd -l gpu=$ngpu"              # command for job submission under SGE
-gpu_options="--gpu -m $ngpu"                 # -s 1000 for partitioning
+activate="conda activate epik ; module load cudnn8.1-cuda11.2/8.1.1.33 ;"
+#activate=""
 
-for dataset in $(grep -v '^#' datasets.txt)  # control which datasets are run through this file
+tc=10
+lr=0.02
+n=1000
+t="1-60"
+
+#lr=0.02
+#n=10
+#t="50-50"
+
+gpu_options="--gpu -m $ngpu"     
+epik="python /grid/mccandlish/home_norepl/martigo/programs/epik/bin/EpiK.py -n $n -r $lr $gpu_options --train_noise"
+submit="qsub -cwd -l gpu=$ngpu -tc $tc -t $t" 
+
+for dataset in smn1 # gb1 aav qtls_li_hq
 do
 
-for i in $(seq 0 4)
-do
-	trainx="splits/$dataset.$i.train.csv"
-	testx="splits/$dataset.$i.test.txt"
-	cmd="$activate; $epik $trainx -p $testx"
 
-	for kernel in RBF Rho RhoPi # VC DP Rho RhoPi RBF ARD HetRBF HetARD
+	for kernel in Additive Pairwise # Exponential Connectedness Jenga GeneralProduct VC
 	do	
-		jid="$kernel.$i.$dataset.gpu"
-		run="$cmd -k $kernel -o $out_dir/$dataset.$i.$kernel.test_pred.csv $gpu_options"
-		echo "$run" | $submit -N "$jid" -e "logs/$jid.err" -o "logs/$jid.out" # Comment before PIPE to only show the command
 
-		# Uncomment next line to run in command line directly
-		# $run  #
+		trainx="splits/$dataset.\$SGE_TASK_ID.train.csv"
+ 		#testx="splits/$dataset.\$SGE_TASK_ID.test.txt"
+                out="$out_dir/$dataset.\$SGE_TASK_ID.$kernel.test_pred.csv"
+		#params="$out.model_params.pth"
+
+ 		#cmd="$activate $epik $trainx -p $testx -k $kernel -o $out --params $params"
+		cmd="$activate $epik $trainx -k $kernel -o $out"
+
+		jid="$kernel.$dataset"
+		sub="$submit -N $jid -e logs/$jid.err -o logs/$jid.out"
+		echo "$cmd"  | $sub
 	done
-done
-
 done

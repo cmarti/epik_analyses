@@ -19,7 +19,8 @@ if __name__ == '__main__':
         X = np.array(list(generate_possible_sequences(l=l, alphabet=alphabet)))
         idx = pd.Series(np.arange(X.shape[0]), index=X)
         obs_idx = idx.loc[data.index.values].values
-        cov, ns, sites_matrix = calc_covariance_vjs(data.y.values, a, l, obs_idx)
+        y = data.y.values
+        cov, ns, sites_matrix = calc_covariance_vjs(y - y.mean(), a, l, obs_idx)
         alleles = ['A', 'B']
         seqs = np.array([''.join([alleles[i] for i in x]) for x in sites_matrix.astype(int)])
 
@@ -28,7 +29,7 @@ if __name__ == '__main__':
                 fhand.write('{}\n'.format(seq))
 
         # Load model params
-        fpath = 'output_gpu/{}.Rho.test_pred.csv.model_params.pth'.format(dataset)
+        fpath = 'output/{}.Rho.test_pred.csv.model_params.pth'.format(dataset)
         params = torch.load(fpath, map_location=torch.device('cpu'))
         logit_rho = params['covar_module.logit_rho'].detach().cpu().numpy().flatten()
         rho = np.exp(logit_rho) / (1 + np.exp(logit_rho))
@@ -36,9 +37,10 @@ if __name__ == '__main__':
                     for sites in sites_matrix]
         
         # Load MAP
-        fpath = 'output_gpu/{}.Rho.test_pred.csv'.format(dataset)
+        fpath = 'output/{}.Rho.test_pred.csv'.format(dataset)
         map = pd.read_csv(fpath, index_col=0)
-        cov_map, ns_map = calc_covariance_vjs(map.y_pred.values, a, l)[:2]
+        y = map.y_pred.values
+        cov_map, ns_map = calc_covariance_vjs(y - y.mean(), a, l)[:2]
         
         covs = pd.DataFrame({'d': [x.count('B') for x in seqs],
                             'data': cov / cov[0],

@@ -34,9 +34,9 @@ def plot_scatter(x, y, axes, vmin=0, vmax=3):
 if __name__ == '__main__':
 
     datasets = ['yeast_30C', 'yeast_li', 'smn1', 'gb1']
-    datasets = ['smn1', 'gb1']
-    kernels = ['mavenn', 'VC', 'ARD']
-    labels = ['Global epistasis', 'Variance Component', 'Jenga model']
+    datasets = ['smn1']
+    kernels = ['VC', 'Jenga']
+    labels = ['Variance Component', 'Jenga model']
 
     results = []    
     for dataset in datasets:
@@ -52,10 +52,12 @@ if __name__ == '__main__':
             for i in [51, 52, 53]:
                 fpath = 'output/{}.{}.{}.test_pred.csv'.format(dataset, i, kernel)
                 if not exists(fpath):
+                    print(fpath)
                     continue
                 pred.append(pd.read_csv(fpath, index_col=0).join(data).dropna())
+                print(pred)
             pred = pd.concat(pred, axis=0)
-            x, y = pred['y_pred'].values, pred['y'].values
+            x, y = pred['coef'].values, pred['y'].values
             im = plot_scatter(x, y, axes)
             axes.set_title(label)
             fig.colorbar(im, label='Frequency', shrink=0.8)

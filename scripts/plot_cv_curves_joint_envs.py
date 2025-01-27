@@ -33,7 +33,7 @@ def read_r2_curve(dataset):
 
 def plot_r2_curves(axes, data, title='', metric='mse'):
     lw = 0.6
-    sns.lineplot(x='p', y=metric, hue='label', lw=lw,
+    sns.lineplot(x='p', y=metric, hue='dataset', lw=lw,
                  data=data, ax=axes, err_style="bars",
                  err_kws={'capsize': 1.5, 'capthick': lw, 'lw': lw}, errorbar='sd')
     axes.grid(alpha=0.2)
@@ -49,26 +49,22 @@ def plot_r2_curves(axes, data, title='', metric='mse'):
 
 if __name__ == '__main__':
     metric = 'r2'
+    ds_name = '37C'
     dataset_labels = {
-                      'qtls_li': 'Li',
-                      'qtls_30C_hq': 'Baseline',
-                      'qtls_merged_hq': 'Joint'}
+                      'Independent': '1D-Fitness function',
+                      'Joint': '2D-Fitness function'
+                      }
     
-    dfs = []
     print('Reading CV curves from')
-    for dataset, label in dataset_labels.items():
-        fpath = 'r2/{}.cv_curves.csv'.format(dataset)
-        print('\t{}'.format(fpath))
-        data = pd.read_csv(fpath, index_col=0)
-        data = data.loc[data['kernel'] == 'Rho']
-        data['label'] = label
-        dfs.append(data)
-    data = pd.concat(dfs, axis=0)
+    fpath = 'r2/{}.cv_curves.csv'.format(ds_name)
+    print('\t{}'.format(fpath))
+    data = pd.read_csv(fpath, index_col=0)
+    print(data)
 
     print('Plotting {} curves'.format(metric.upper()))
     fig, axes = plt.subplots(1, 1, figsize=(3.5, 3))
     plot_r2_curves(axes, data, metric=metric)
     fig.tight_layout()
-    fig.savefig('plots/joint_envs.{}.svg'.format(metric), format='svg', dpi=300)
-    fig.savefig('plots/joint_envs.{}.png'.format(metric), format='png', dpi=300)
+    fig.savefig('plots/{}.{}.svg'.format(ds_name, metric), format='svg', dpi=300)
+    fig.savefig('plots/{}.{}.png'.format(ds_name, metric), format='png', dpi=300)
     print('Done')

@@ -17,10 +17,10 @@ def ps_to_seqs(ps):
 
 
 if __name__ == '__main__':
-    environments = ['30C', 'li']
+    environments = ['30C', '27C']
     labels = ['A', 'B']
     subset = 'qtls'
-    fpath = 'raw/prob_genotypes_220.csv'
+    out_name = 'merged2'
     
     dfs = []
     for env, label in zip(environments, labels):
@@ -28,4 +28,22 @@ if __name__ == '__main__':
         df.index = [x + label for x in df.index.values]
         dfs.append(df)
     df = pd.concat(dfs)
-    df.to_csv('datasets/{}_merged_hq.csv'.format(subset))
+    df.to_csv('datasets/{}_{}_hq.csv'.format(subset, out_name))
+
+    for i in tqdm(range(54)):
+        dfs = []
+        test = []
+        for env, label in zip(environments, labels):
+            df = pd.read_csv('splits/{}_{}_hq.{}.train.csv'.format(subset, env, i), index_col=0)
+            df.index = [x + label for x in df.index.values]
+            dfs.append(df)
+
+            test_seqs = [line.strip() + label
+                         for line in open('splits/{}_{}_hq.{}.test.txt'.format(subset, env, i))]
+            test.extend(test_seqs)
+        df = pd.concat(dfs)
+        df.to_csv('splits/{}_{}_hq.{}.train.csv'.format(subset, out_name, i))
+
+        with open('splits/{}_{}_hq.{}.test.txt'.format(subset, out_name, i), 'w') as fhand:
+            for seq in test:
+                fhand.write('{}\n'.format(seq))
