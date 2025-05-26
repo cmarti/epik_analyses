@@ -12,7 +12,7 @@ if __name__ == "__main__":
     dataset = "gb1"
     alphabet = ALPHABET[dataset]
 
-    exponential = load_decay_rates(dataset=dataset, kernel="Exponential")
+    # exponential = load_decay_rates(dataset=dataset, kernel="Exponential")
     connectedness = load_decay_rates(dataset=dataset, kernel="Connectedness")
     jenga = load_decay_rates(dataset=dataset, kernel="Jenga")
 

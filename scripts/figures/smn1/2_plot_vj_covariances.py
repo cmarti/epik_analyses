@@ -22,7 +22,7 @@ if __name__ == "__main__":
         figsize=(FIG_WIDTH * 0.7, FIG_WIDTH * 0.4),
     )
 
-    axes = subplots[0]
+    axes = subplots[1]
     plot.plot_visualization(
         axes,
         covs,
@@ -34,7 +34,6 @@ if __name__ == "__main__":
         nodes_alpha=0.6,
         edges_color="lightgrey",
         edges_alpha=0.4,
-        fontsize=8,
     )
 
     df = covs[["d", "data", "data_ns"]].copy()
@@ -59,7 +58,7 @@ if __name__ == "__main__":
 
     fpath = "results/{}.cv_curves.csv".format(dataset)
     data = pd.read_csv(fpath, index_col=0)
-    axes = subplots[1]
+    axes = subplots[0]
     plot_cv_curve(axes, data, metric=metric)
 
     fig.tight_layout()

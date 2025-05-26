@@ -4,7 +4,10 @@ import seaborn as sns
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from scripts.figures.settings import REF_SEQS, MODELS, ORDER
+
+from os.path import join
+
+from scripts.settings import REF_SEQS, MODELS, ORDER, FIGDIR
 
 FIG_WIDTH = 7
 
@@ -84,29 +87,32 @@ def plot_cv_curve(axes, data, metric="r2", lw=0.8):
     obs = data["model"].unique()
     order = [x for x in ORDER if x in obs]
     for model in order:
-        subset = data[data['model'] == model]
-        sns.lineplot(x='p_training',
-                     y=metric,
-                     data=subset,
-                     label=model,
-                     color=MODELS_PALETTE[model],
-                     lw=lw,
-                     hue_order=order[::-1],
-                     ax=axes,
-                     err_style="bars",
-                     err_kws={
-                        "capsize": lw * 0.2,
-                        "capthick": 0,
-                        "lw": lw,
-                        "elinewidth": 0.5,
-                      },
-                      errorbar="sd")
-    
+        subset = data[data["model"] == model]
+        sns.lineplot(
+            x="p_training",
+            y=metric,
+            data=subset,
+            label=model,
+            color=MODELS_PALETTE[model],
+            lw=lw,
+            hue_order=order[::-1],
+            ax=axes,
+            err_style="bars",
+            err_kws={
+                "capsize": lw * 0.2,
+                "capthick": 0,
+                "lw": lw,
+                "elinewidth": 0.5,
+            },
+            errorbar="sd",
+        )
+
     hue_order = [x for x in MODELS if x in obs][::-1]
     handles, labels = axes.get_legend_handles_labels()
-    ordered_handles = [handles[hue_order.index(label)] for label in hue_order[::-1]]
+    idxs = [labels.index(label) for label in hue_order]
+    ordered_handles = [handles[i] for i in idxs]
     axes.legend(ordered_handles, hue_order, loc=4, frameon=False, ncol=1)
-    
+
     axes.set(
         # aspect=1 / 0.6,
         aspect=1,
@@ -115,3 +121,11 @@ def plot_cv_curve(axes, data, metric="r2", lw=0.8):
         ylim=(0.0, 1) if metric == "r2" else (None, None),
         xlim=(0, 1),
     )
+    
+    
+def savefig(fig, fname, save_svg=True, dpi=300):
+    fpath = join(FIGDIR, fname)
+    print('Saving figure to {}'.format(fpath))
+    fig.savefig("{}.png".format(fpath), dpi=dpi)
+    if save_svg:
+        fig.savefig("{}.svg".format(fpath), dpi=dpi)

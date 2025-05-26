@@ -23,7 +23,8 @@ if __name__ == "__main__":
         theta1 = torch.Tensor(aligner.connectedness_to_jenga(theta0))
         params["covar_module.theta"] = theta1
         suffix = "Jenga.model_params.pth"
-        fpath = "output/{}.{}{}.{}".format(dataset, model, i, suffix)
+        fpath = "output/{}.{}.{}.{}".format(dataset, model, i, suffix)
+        print(fpath)
         torch.save(params, fpath)
 
         model = "Jenga"

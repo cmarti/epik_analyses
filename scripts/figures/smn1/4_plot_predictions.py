@@ -55,7 +55,7 @@ if __name__ == "__main__":
     i = 60
 
     data = pd.read_csv("datasets/{}.csv".format(dataset), index_col=0)
-    fpath = "output/{}.{}.{}.test_pred.csv".format(dataset, i, kernel)
+    fpath = "output_new/{}.{}.{}.test_pred.csv".format(dataset, i, kernel)
     pred = pd.read_csv(fpath, index_col=0).join(data).dropna()
 
     fig, axes = plt.subplots(1, 1, figsize=(FIG_WIDTH * 0.44, FIG_WIDTH * 0.4))

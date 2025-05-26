@@ -28,9 +28,12 @@ if __name__ == "__main__":
     ]
 
     bins = np.linspace(lims[0], lims[1], 50)
-    fig, subplots = plt.subplots(3, 1,
-                                 figsize=(0.33 * FIG_WIDTH,
-                                          0.85 * FIG_WIDTH))
+    fig, subplots = plt.subplots(
+        3,
+        1,
+        figsize=(0.33 * FIG_WIDTH, 0.65 * FIG_WIDTH),
+        height_ratios=(2, 3, 2),
+    )
 
     axes = subplots[0]
     xticks = np.array([-10, -5, 0, 5, 10])
@@ -50,10 +53,10 @@ if __name__ == "__main__":
         bins=bins,
         density=True,
     )
-    axes.legend(loc=0, fontsize=9)
+    axes.legend(loc=0)
     axes.set(xlabel="DMS score", ylabel="Probability density", xticks=xticks)
 
-    axes = subplots[1]
+    axes = subplots[2]
     idx = np.isin(data["576"], ["Y", "F", "W"])
     axes.hist(
         data.loc[~idx, "y"],
@@ -71,12 +74,18 @@ if __name__ == "__main__":
         bins=bins,
         density=True,
     )
-    axes.legend(loc=0, fontsize=9)
+    axes.legend(loc=0)
     axes.set(xlabel="DMS score", ylabel="Probability density", xticks=xticks)
 
-    axes = subplots[2]
+    axes = subplots[1]
     sns.violinplot(
-        y="y", x="charge", data=data, color="grey", inner=None, linewidth=0.75
+        y="y",
+        x="charge",
+        data=data,
+        color="grey",
+        inner=None,
+        linewidth=0.75,
+        ax=axes,
     )
     axes.set(ylabel="DMS score", xlabel="579-588 charge")
     # axes.scatter(data['charge'], data['y'], s=5, alpha=0.2, c='black', lw=0)
