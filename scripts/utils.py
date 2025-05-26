@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import torch
 
-from scripts.settings import ALPHABET, POSITIONS
+from scripts.settings import ALPHABET, POSITIONS, PARAMSDIR
 from torch.distributions.transforms import CorrCholeskyTransform
 
 
@@ -56,13 +56,10 @@ def torch_load(fpath):
     return torch.load(fpath, map_location=torch.device("cpu"))
 
 
-def load_params(dataset, kernel, id=7):
-    fdir = "output_new"
+def load_params(dataset, kernel):
     suffix = "model_params.pth"
-    # fname = "{}.{}.{}.{}".format(dataset, id, kernel, suffix)
     fname = "{}.full.1.{}.{}".format(dataset, kernel, suffix)
-    fpath = join(fdir, fname)
-    print(fpath)
+    fpath = join(PARAMSDIR, fname)
     
     params = torch_load(fpath)
     return params

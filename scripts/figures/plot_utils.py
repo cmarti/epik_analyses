@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import numpy as np
 import matplotlib.patches as patches
 import seaborn as sns
 
@@ -121,7 +122,34 @@ def plot_cv_curve(axes, data, metric="r2", lw=0.8):
         ylim=(0.0, 1) if metric == "r2" else (None, None),
         xlim=(0, 1),
     )
+
+
+def plot_decay_rates(axes, decay_rates, dataset, **kwargs):
+    sns.heatmap(
+        decay_rates.T * 100,
+        ax=axes,
+        cmap="Blues",
+        vmin=0,
+        vmax=100,
+        cbar_kws={"label": r"Decay factor (%)"},
+        **kwargs
+    )
+    axes.set(
+        title="Jenga",
+        xlabel="Position",
+        ylabel="Allele",
+        xticks=np.arange(decay_rates.shape[0]) + 0.5,
+        yticks=np.arange(decay_rates.shape[1]) + 0.5,
+    )
     
+    rows, columns = decay_rates.index.values, decay_rates.columns.values
+    axes.set_xticklabels(rows, rotation=0, ha="center", fontsize=7)
+    
+    if decay_rates.shape[1] > 1:
+        axes.set_yticklabels(columns, rotation=0, ha="center", fontsize=7)
+        highlight_seq_heatmap(axes, decay_rates, dataset=dataset)
+    sns.despine(ax=axes, right=False, top=False)
+
     
 def savefig(fig, fname, save_svg=True, dpi=300):
     fpath = join(FIGDIR, fname)
