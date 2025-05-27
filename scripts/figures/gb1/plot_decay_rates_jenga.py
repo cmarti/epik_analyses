@@ -47,4 +47,4 @@ if __name__ == "__main__":
     plot_decay_rates(axes, jenga, dataset, cbar=False)
 
     fig.tight_layout(h_pad=0.3)
-    savefig(fig, "gb1.decay_factors")
+    savefig(fig, "{}.decay_factors".format(dataset))

@@ -2,12 +2,11 @@
 import numpy as np
 import matplotlib.patches as patches
 import seaborn as sns
-
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 from os.path import join
-
+from scipy.stats import pearsonr
 from scripts.settings import REF_SEQS, MODELS, ORDER, FIGDIR, POSITIONS
 
 FIG_WIDTH = 7
@@ -195,6 +194,47 @@ def plot_mutation_decay_rates(axes, decay_rates, position, dataset, **kwargs):
     axes.set_yticklabels(columns, rotation=0, ha="center")
     highlight_mut_heatmap(axes, decay_rates, dataset, position)
     sns.despine(ax=axes, right=False, top=False)
+
+
+def plot_2D_hist(x, y, axes, vmin=0, vmax=3):
+    r2 = pearsonr(x, y)[0] ** 2
+    rmse = np.sqrt(np.mean((x - y) ** 2))
+
+    lims = min(x.min(), y.min()), max(x.max(), y.max())
+    bins = np.linspace(lims[0], lims[1], 100)
+    diff = lims[1] - lims[0]
+    lims = (lims[0] - 0.05 * diff, lims[1] + 0.05 * diff)
+
+    H, xbins, ybins = np.histogram2d(x=x, y=y, bins=bins)
+    with np.errstate(divide='ignore'):
+        im = axes.imshow(
+            np.log10(H.T[::-1, :]),
+            cmap="viridis",
+            extent=(xbins[0], xbins[-1], ybins[0], ybins[-1]),
+            vmin=vmin,
+            vmax=vmax,
+        )
+    axes.plot(lims, lims, lw=0.5, linestyle="--", c="black")
+    axes.text(
+        0.95,
+        0.05,
+        "$R^2$={:.2f}\nRMSE={:.2f}".format(r2, rmse),
+        transform=axes.transAxes,
+        fontsize=8,
+        ha="right",
+        va="bottom",
+    )
+    ticks = [0, 50, 100, 150]
+    axes.set(
+        xlabel=r"Predicted PSI (%)",
+        ylabel=r"Observed PSI (%)",
+        xlim=lims,
+        ylim=lims,
+        aspect="equal",
+        xticks=ticks,
+        yticks=ticks,
+    )
+    return im
 
     
 def savefig(fig, fname, save_svg=True, dpi=300):

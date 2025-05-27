@@ -3,17 +3,18 @@ import numpy as np
 import mavenn
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.patches as patches
 import seaborn as sns
-from scripts.figures.plot_utils import FIG_WIDTH
-from scipy.stats import pearsonr
+
+from os.path import join
+from matplotlib import colormaps
+from scripts.settings import SMN1, PARAMSDIR, DATADIR
+from scripts.figures.plot_utils import FIG_WIDTH, highlight_seq_heatmap, plot_2D_hist, savefig
 
 
 def read_theta():
     dataset = "smn1"
     positions = ["-3", "-2", "-1", "+2", "+3", "+4", "+5", "+6"]
-    fpath = "output_new/{}.global_epistasis.model".format(dataset)
+    fpath = join(PARAMSDIR, "{}.global_epistasis.model".format(dataset))
     model = mavenn.load(fpath)
     theta = model.get_theta()
     theta_lc = theta["logomaker_df"]
@@ -30,7 +31,7 @@ def read_theta():
     seq0 = "".join([theta_lc.columns[i] for i in np.where(theta_lc == 0.0)[1]])
     phi_max = model.x_to_phi(seq0)
 
-    fpath = "datasets/{}.csv".format(dataset)
+    fpath = join(DATADIR, "{}.csv".format(dataset))
     data = pd.read_csv(fpath, index_col=0)
     data["phi"] = model.x_to_phi(data.index.values)
     delta = 0.025 * (phi_max - data["phi"].min())
@@ -43,31 +44,8 @@ def read_theta():
     return (theta_lc, pred, data.dropna())
 
 
-def highlight_seq_heatmap(dataset, axes, matrix):
-    seqs = {
-        "smn1": "CAGUAAGU",
-        "gb1": "VDGV",
-        "aav": "DEEEIRTTNPVATEQYGSVSTNLQRGNR",
-    }
-
-    axes.set_clip_on(False)
-    for x, c in enumerate(seqs[dataset]):
-        y = matrix.columns.tolist().index(c)
-        axes.add_patch(
-            patches.Rectangle(
-                xy=(x, y),
-                width=1.0,
-                height=1.0,
-                lw=0.75,
-                fill=False,
-                edgecolor="black",
-                zorder=2,
-            )
-        )
-
-
 def plot_theta_heatmap(axes, theta):
-    cmap = cm.get_cmap("binary")
+    cmap = colormaps["binary"]
     axes.set_facecolor(cmap(0.1))
     sns.heatmap(
         theta.T,
@@ -78,8 +56,7 @@ def plot_theta_heatmap(axes, theta):
     )
     axes.set(xlabel="Position", ylabel="Allele", aspect="equal")
     axes.set_yticklabels(axes.get_yticklabels(), rotation=0)
-    highlight_seq_heatmap(dataset, axes, theta)
-
+    highlight_seq_heatmap(axes, theta, dataset)
     sns.despine(ax=axes, right=False, top=False)
 
 
@@ -91,20 +68,16 @@ def plot_nonlinearity(axes, pred, data):
     )
     dy = ybins[-1] - ybins[0]
     aspect = (xbins[-1] - xbins[0]) / dy
-    im = axes.imshow(
-        np.log(H.T[::-1, :]),
-        cmap="viridis",
-        extent=(xbins[0], xbins[-1], ybins[0], ybins[-1]),
-        aspect=aspect,
-    )
+    with np.errstate(divide='ignore'):
+        im = axes.imshow(
+            np.log(H.T[::-1, :]),
+            cmap="viridis",
+            extent=(xbins[0], xbins[-1], ybins[0], ybins[-1]),
+            aspect=aspect,
+        )
     plt.colorbar(im, shrink=0.7, label='# sequences')
-    # axes.scatter(x=data["phi"].values, y=data["y"].values, s=2.5, alpha=0.1,
-    #              c='grey', lw=0)
-
     axes.plot(pred["phi"], pred["yhat"], c="black", lw=1)
-    # ylim = (ybins[0] - 0.05 * dy, ybins[-1] + 0.05 * dy)
     axes.set(
-        # ylim=ylim,
         xlim=(pred["phi"].min(), pred["phi"].max()),
         xlabel=r"Latent phenotype $\phi$",
         ylabel=r"Observed PSI",
@@ -112,52 +85,16 @@ def plot_nonlinearity(axes, pred, data):
     
 
 
-def plot_scatter(x, y, axes, vmin=0, vmax=3):
-    r2 = pearsonr(x, y)[0] ** 2
-    rmse = np.sqrt(np.mean((x - y) ** 2))
-
-    lims = min(x.min(), y.min()), max(x.max(), y.max())
-    bins = np.linspace(lims[0], lims[1], 100)
-    diff = lims[1] - lims[0]
-    lims = (lims[0] - 0.05 * diff, lims[1] + 0.05 * diff)
-
-    H, xbins, ybins = np.histogram2d(x=x, y=y, bins=bins)
-    im = axes.imshow(
-        np.log10(H.T[::-1, :]),
-        cmap="viridis",
-        extent=(xbins[0], xbins[-1], ybins[0], ybins[-1]),
-        vmin=vmin,
-        vmax=vmax,
-    )
-    axes.plot(lims, lims, lw=0.5, linestyle="--", c="black")
-    axes.text(
-        0.95,
-        0.05,
-        "$R^2$={:.2f}\nRMSE={:.2f}".format(r2, rmse),
-        transform=axes.transAxes,
-        fontsize=8,
-        ha="right",
-        va="bottom",
-    )
-    ticks = [0, 50, 100, 150]
-    axes.set(
-        xlabel=r"Predicted PSI (%)",
-        ylabel=r"Observed PSI (%)",
-        xlim=lims,
-        ylim=lims,
-        aspect="equal",
-        xticks=ticks,
-        yticks=ticks,
-    )
-    return im
-
-
 if __name__ == "__main__":
-    dataset = "smn1"
+    dataset = SMN1
     kernel = "VC"
     i = 60
+    
+    
+    print("Loading {} global epistasis parameters".format(dataset))
     theta, pred, data = read_theta()
 
+    print('Plotting {} global epistasis fit'.format(dataset))
     fig, subplots = plt.subplots(
         1,
         3,
@@ -169,30 +106,26 @@ if __name__ == "__main__":
     fig.axes[-1].set_yticks([0, np.log(10), np.log(100), np.log(1000)])
     fig.axes[-1].set_yticklabels([r'$10^0$', r'$10^1$', r'$10^2$', r'$10^3$'])
     
+    print('Plotting {} global epistasis parameters'.format(dataset))
     plot_theta_heatmap(subplots[1], theta)
     sns.despine(ax=fig.axes[-1], right=False, top=False)
     fig.axes[-1].set_yticks([-2, -1, 0])
     
-    axes = subplots[2]
-    data = pd.read_csv("datasets/{}.csv".format(dataset), index_col=0)
-    fpath = "output_new/{}.{}.{}.test_pred.csv".format(dataset, i, kernel)
-    pred = pd.read_csv(fpath, index_col=0).join(data).dropna()
-    x, y = pred["coef"].values, pred["y"].values
-    im = plot_scatter(x, y, axes)
-    axes.set_title('Variance component regression')
+    print("Loading VC regression predictions")
+    fpath = join(DATADIR, "{}.csv".format(dataset))
+    data = pd.read_csv(fpath, index_col=0)
+    fname = "{}.{}.{}.test_pred.csv".format(dataset, i, kernel)
+    pred = pd.read_csv(join(PARAMSDIR, fname), index_col=0).join(data).dropna()
     
+    print('Plotting VC regression predictions')
+    axes = subplots[2]
+    x, y = pred["coef"].values, pred["y"].values
+    im = plot_2D_hist(x, y, axes)
+    axes.set_title('Variance component regression')
     fig.colorbar(im, label="# test sequences", shrink=0.7)
     axes = fig.axes[-1]
     axes.set_yticks([0, 1, 2, 3])
     axes.set_yticklabels(["10$^0$", "10$^1$", "10$^2$", "10$^3$"])
 
     fig.tight_layout()
-    fig.savefig("figures/{}.global_epistasis.png".format(dataset), dpi=300)
-    fig.savefig("figures/{}.global_epistasis.svg".format(dataset), dpi=300)
-
-    # for dataset in ['yeast_li', 'yeast.37C']:
-    #     theta, pred, data = read_theta(dataset, id)
-    #     theta = theta.values.min(1).flatten()
-    #     manhattanplot(dataset, theta)
-    #     plot_nonlinearity(pred, data, dataset)
-    #     # plot_hist_theta(dataset, theta)
+    savefig(fig, "{}.global_epistasis".format(dataset))

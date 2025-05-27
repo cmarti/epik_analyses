@@ -115,3 +115,10 @@ def load_gb1_visualization():
     nodes = nodes.join(kernel)
 
     return (nodes, edges)
+
+
+def load_r2(dataset):
+    print("Loading R2 data for {}".format(dataset))
+    fpath = join(RESULTSDIR, "{}.cv_curves.csv".format(dataset))
+    data = pd.read_csv(fpath, index_col=0)
+    return data

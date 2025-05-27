@@ -2,27 +2,20 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import gpmap.plot.mpl as plot
 
-import gpmap.src.plot.mpl as plot
-from gpmap.src.space import SequenceSpace
-from scripts.figures.plot_utils import FIG_WIDTH, plot_cv_curve
+from os.path import join
+from gpmap.space import SequenceSpace
+from scripts.settings import SMN1, RESULTSDIR
+from scripts.utils import load_r2
+from scripts.figures.plot_utils import FIG_WIDTH, plot_cv_curve, savefig
 
-if __name__ == "__main__":
-    plt.rcParams["font.family"] = "Arial"
 
-    covs = pd.read_csv("smn1.vj_covariances.csv", index_col=0).sort_index()
+def plot_vj_correlations(axes, covs):
     covs["x"] = np.random.normal(covs["d"], scale=0.075)
     space = SequenceSpace(X=covs.index.values, y=covs["data"].values)
     edges = space.get_edges_df()
 
-    lim = (-0.1, 1.05)
-    fig, subplots = plt.subplots(
-        1,
-        2,
-        figsize=(FIG_WIDTH * 0.7, FIG_WIDTH * 0.4),
-    )
-
-    axes = subplots[1]
     plot.plot_visualization(
         axes,
         covs,
@@ -44,6 +37,8 @@ if __name__ == "__main__":
 
     axes.plot(df["d"], df["c"], lw=1, color="black", zorder=5)
     axes.scatter(df["d"], df["c"], s=10, color="black", zorder=5)
+
+    lim = (-0.1, 1.05)
     axes.set(
         xticks=np.arange(space.seq_length + 1),
         ylim=lim,
@@ -53,14 +48,27 @@ if __name__ == "__main__":
     axes.set_xlabel("Hamming distance", fontsize=8)
     axes.set_ylabel("Correlation", fontsize=8)
 
-    dataset = "smn1"
+
+if __name__ == "__main__":
+    dataset = SMN1
     metric = "r2"
 
-    fpath = "results/{}.cv_curves.csv".format(dataset)
-    data = pd.read_csv(fpath, index_col=0)
+    print("Loading {} empirical covariances".format(dataset))
+    fpath = join(RESULTSDIR, "{}.vj_covariances.csv".format(dataset))
+    covs = pd.read_csv(fpath, index_col=0).sort_index()
+    data = load_r2(dataset)
+
+    fig, subplots = plt.subplots(
+        1,
+        2,
+        figsize=(FIG_WIDTH * 0.7, FIG_WIDTH * 0.4),
+    )
+
     axes = subplots[0]
     plot_cv_curve(axes, data, metric=metric)
 
+    axes = subplots[1]
+    plot_vj_correlations(axes, covs)
+
     fig.tight_layout()
-    fig.savefig("figures/smn1_distance_correlations.png", dpi=300)
-    fig.savefig("figures/smn1_distance_correlations.svg", dpi=300)
+    savefig(fig, "smn1_r2_distance_correlations")
