@@ -10,13 +10,13 @@ from scripts.figures.plot_utils import FIG_WIDTH
 
 def main():
     # Load data
-    fpath = "output_new/qtls_li_hq.Connectedness.2.pred.csv"
+    fpath = "output/models/qtls_li_hq.Connectedness.2.pred.csv"
     landscape = pd.read_csv(fpath, index_col=0)
 
-    loci = np.load("datasets/qtls_li_hq.selected_loci.npy", allow_pickle=True)
+    loci = np.load("data/processed/qtls_li_hq.selected_loci.npy", allow_pickle=True)
     loci = np.append(["BC"], loci)
 
-    with open("datasets/qtls_li_hq.seqs_key.txt") as fhand:
+    with open("data/qtls_li_hq.seqs_key.txt") as fhand:
         seqs = [line.strip() for line in fhand]
 
     # Process data
@@ -50,7 +50,7 @@ def main():
         x="d",
         y="coef",
         nodes_size=5,
-        edges_df=edges,
+        # edges_df=edges,
         nodes_color="ena1",
         nodes_palette=palette,
         nodes_alpha=0.1,

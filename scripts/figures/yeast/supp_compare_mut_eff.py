@@ -4,7 +4,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from itertools import combinations
-from scripts.figures.plot_utils import FIG_WIDTH
+
+from os.path import join
+from scripts.settings import RESULTSDIR
+from scripts.figures.plot_utils import FIG_WIDTH, savefig
 
 
 def plot_mut_effs(axes, data, bc, color, label):
@@ -45,13 +48,6 @@ def add_mut_labels(axes, data, x, y):
             ha=ha,
             xytext=(xtext, ytext),
             fontsize=6,
-            # arrowprops=dict(
-            #     facecolor="black",
-            #     shrink=1,
-            #     width=0.25,
-            #     headwidth=2,
-            #     headlength=2,
-            # ),
         )
 
 
@@ -63,7 +59,9 @@ if __name__ == "__main__":
         "ENA1-BY in RM background",
         "ENA1-BY in BY background",
     ]
-    fpath = "results/qtls_li_hq_results.csv"
+    
+    print('Loading results')
+    fpath = join(RESULTSDIR, "qtls_li_hq_results.csv")
     data = pd.read_csv(fpath)
     data = data.loc[data["gene"] != "ENA1", :]
 
@@ -72,7 +70,9 @@ if __name__ == "__main__":
     )
     subplots = subplots.flatten()
 
+    print('Plotting mutational effects across genetic backgrounds')
     for (i, j), axes in zip(combinations(np.arange(4), 2), subplots):
+        print('\tComparing {} vs {}'.format(labels[i], labels[j]))
         bc1, label1 = bcs[i], labels[i]
         bc2, label2 = bcs[j], labels[j]
         axes.errorbar(
@@ -131,5 +131,4 @@ if __name__ == "__main__":
     fig.supylabel("Fitness effects (BY-RM)", fontsize=9, y=0.55, va="center")
 
     fig.tight_layout()
-    fig.savefig("figures/yeast_supp_fig.png", dpi=300)
-    fig.savefig("figures/yeast_supp_fig.svg", dpi=300)
+    savefig(fig, "yeast_supp_fig", dpi=300)

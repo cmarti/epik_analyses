@@ -2,18 +2,34 @@
 import numpy as np
 import pandas as pd
 
-from scripts.figures.utils import load_decay_rates
+from os.path import join
+from scripts.settings import YEAST, RESULTSDIR, DATADIR, LENGTH, PARAMSDIR
+
 
 if __name__ == "__main__":
-    dataset = "qtls_li_hq"
-    decay_rates = load_decay_rates(dataset, kernel="Connectedness")
-    sel_loci = pd.read_csv("raw/qtls.tsv", sep="\t")
+    dataset = YEAST
+    ena1_locus = 12
+    length = LENGTH[dataset]
+    
+    print('Loading inferred site-specific decay rates')
+    fpath = join(RESULTSDIR, "{}.connectedness_decay_rates.csv".format(dataset))
+    decay_rates = pd.read_csv(fpath, index_col=0)
+    
+    print('Load external data from QTLs')
+    fpath = join(DATADIR, 'raw', 'qtls.tsv')
+    sel_loci = pd.read_csv(fpath, sep="\t")
+    
+    fpath = join(DATADIR, 'raw', 'SNP_list.csv')
+    annotations = pd.read_csv(fpath, index_col=0)
+    
+    fpath = join(DATADIR, 'raw', 'chr_sizes.csv')
+    chr_sizes = pd.read_csv(fpath, index_col=0)
+    
+    print('Merging external data')
     sel_loci = sel_loci.loc[sel_loci["Environment"] == "li", :]
-    annotations = pd.read_csv("raw/SNP_list.csv", index_col=0)
     sel_loci = sel_loci.join(annotations, on="SNP_index")
     sel_loci["chr"] = ["chr{}".format(i) for i in sel_loci["Chromosome"]]
-    chr_sizes = pd.read_csv("raw/chr_sizes.csv", index_col=0)["size"]
-    chr_x = np.cumsum(chr_sizes)
+    chr_x = np.cumsum(chr_sizes["size"])
     sel_loci["x"] = (
         chr_x.loc[sel_loci["chr"]].values + sel_loci["Position (bp)"]
     )
@@ -21,21 +37,21 @@ if __name__ == "__main__":
     sel_loci["idx"] = np.arange(sel_loci.shape[0])
     sel_loci.set_index("idx", inplace=True)
 
-    # Load mutational effects
+    print('Loading inferred mutational effects')
     backgrounds = [
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-        "BBBBBBBBBBBBABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-        "AAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-        "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+        "A" * length,
+        "B" * ena1_locus + "A"  + 'B' * (length - ena1_locus - 1),
+        "A" * ena1_locus + "B"  + 'A' * (length - ena1_locus - 1),
+        "B" * length,
     ]
     bcs = ["RM", "BY", "RM", "BY"]
     ena1 = ["RM", "RM", "BY", "BY"]
 
     data = []
     for seq, bc, ena in zip(backgrounds, bcs, ena1):
-        fpath = "output_new/qtls_li_hq.Connectedness.{}_expansion.csv".format(
-            seq
-        )
+        print('\tENA1-{} in {} background'.format(ena, bc))
+        fname = "{}.Connectedness.{}_expansion.csv".format(dataset, seq)
+        fpath = join(PARAMSDIR, fname)
         df = pd.read_csv(fpath, index_col=0)
         df = df.loc[["_" not in x for x in df.index], :]
         idx = np.array([x.startswith("B") for x in df.index])
@@ -49,7 +65,11 @@ if __name__ == "__main__":
         )
         df.columns = ["{}_{}_ena1{}".format(c, bc, ena) for c in df.columns]
         data.append(df)
+        
     data = pd.concat(data, axis=1)
     data["idx"] = [int(x[1:-1]) for x in data.index]
     data = data.join(sel_loci, on="idx", rsuffix="_locus").set_index("gene")
-    data.to_csv("results/{}_results.csv".format(dataset))
+    
+    fpath = join(RESULTSDIR, "{}_results.csv".format(dataset))
+    print('Saving processed data at {}'.format(fpath))
+    data.to_csv(fpath)

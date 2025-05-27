@@ -86,6 +86,7 @@ AAV_BACKGROUNDS = {'WT': 'DEEEIRTTNPVATEQYGSVSTNLQRGNR',
 # File paths
 BASEDIR = join(dirname(abspath(__file__)), '..',)
 DATADIR = join(BASEDIR, "data")
+PROCESSEDDIR = join(DATADIR, "processed")
 SPLITSDIR = join(DATADIR, "splits")
 OUTDIR = join(BASEDIR, "output")
 PARAMSDIR = join(OUTDIR, "models")

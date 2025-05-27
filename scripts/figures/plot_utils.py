@@ -245,3 +245,14 @@ def savefig(fig, fname, save_svg=True, dpi=300):
     fig.savefig("{}.png".format(fpath), dpi=dpi)
     if save_svg:
         fig.savefig("{}.svg".format(fpath), dpi=dpi)
+
+
+def plot_panel_label(axes, x, y, label):
+    axes.text(
+        x,
+        y,
+        label,
+        transform=axes.transAxes,
+        fontsize=12,
+        fontweight="bold",
+    )
