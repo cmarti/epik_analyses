@@ -2,12 +2,11 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
-#!/usr/bin/env python
-from matplotlib.gridspec import GridSpec
-from scripts.figures.plot_utils import FIG_WIDTH, plot_cv_curve
-from gpmap.space import SequenceSpace
 import gpmap.plot.mpl as mplot
+
+from matplotlib.gridspec import GridSpec
+from gpmap.space import SequenceSpace
+from scripts.figures.plot_utils import FIG_WIDTH, plot_cv_curve
 
 
 def color_by_chr(axes, chr_x, ylim):

@@ -57,8 +57,9 @@ MODELS_PALETTE = {
 }
 
 
-def highlight_seq_heatmap(axes, matrix, dataset):
-    seq = REF_SEQS[dataset]
+def highlight_seq_heatmap(axes, matrix, dataset=None, seq=None):
+    if seq is None:
+        seq = REF_SEQS[dataset]
 
     axes.set_clip_on(False)
     for x, c in enumerate(seq):
@@ -98,7 +99,7 @@ def highlight_mut_heatmap(axes, matrix, dataset, position):
 
 def plot_cv_curve(axes, data, metric="r2", lw=0.8):
     ylabels = {
-        "r2": "Test $R^2$",
+        "r2": "Test R$^2$",
         "rmse": "Test RMSE",
         "logit_r2": r"$\log_2\left(\frac{V_{model}}{V_{res}}\right)$",
         "log_likelihood": "Test log(L)",
@@ -170,14 +171,15 @@ def plot_decay_rates(axes, decay_rates, dataset, **kwargs):
     sns.despine(ax=axes, right=False, top=False)
 
 
-def plot_mutation_decay_rates(axes, decay_rates, position, dataset, **kwargs):
+def plot_mutation_decay_rates(axes, decay_rates, position, dataset,
+                              cbar_kws={}, **kwargs):
     sns.heatmap(
         decay_rates * 100,
         ax=axes,
         cmap="Blues",
         vmin=0,
         vmax=100,
-        cbar_kws={"label": r"Decay factor (%)"},
+        cbar_kws={"label": r"Decay factor (%)"}.update(cbar_kws),
         **kwargs
     )
     axes.set(
