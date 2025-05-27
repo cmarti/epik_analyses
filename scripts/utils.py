@@ -4,8 +4,15 @@ import pandas as pd
 import numpy as np
 import torch
 
-from scripts.settings import ALPHABET, POSITIONS, PARAMSDIR
+from gpmap.utils import read_edges
 from torch.distributions.transforms import CorrCholeskyTransform
+from scripts.settings import (
+    ALPHABET,
+    POSITIONS,
+    PARAMSDIR,
+    RESULTSDIR,
+    GB1_PEAK_SEQS,
+)
 
 
 def theta_to_decay_rates(theta, kernel, positions, alphabet):
@@ -60,7 +67,7 @@ def load_params(dataset, kernel):
     suffix = "model_params.pth"
     fname = "{}.full.1.{}.{}".format(dataset, kernel, suffix)
     fpath = join(PARAMSDIR, fname)
-    
+
     params = torch_load(fpath)
     return params
 
@@ -76,8 +83,8 @@ def params_to_decay_rates(params, dataset, kernel):
     return decay_rates
 
 
-def load_decay_rates(dataset, kernel, id=6):
-    params = load_params(dataset, kernel, id)
+def load_decay_rates(dataset, kernel):
+    params = load_params(dataset, kernel)
     return params_to_decay_rates(params, dataset, kernel)
 
 
@@ -94,3 +101,17 @@ def get_jenga_mut_decay_rates(decay_rates):
             deltas, index=alleles, columns=alleles
         )
     return mut_decay_rates
+
+
+def load_gb1_visualization():
+    print("Loading correlation with {} under all models".format(GB1_PEAK_SEQS))
+    fpath = join(RESULTSDIR, "gb1.kernels_at_peaks.csv")
+    kernel = pd.read_csv(fpath, index_col=0)
+
+    print("Loading visualization coordinates")
+    fpath = join(RESULTSDIR, "gb1.jenga.nodes.csv")
+    nodes = pd.read_csv(fpath, index_col=0)
+    edges = read_edges(fpath=join(RESULTSDIR, "gb1.jenga.edges.npz"))
+    nodes = nodes.join(kernel)
+
+    return (nodes, edges)

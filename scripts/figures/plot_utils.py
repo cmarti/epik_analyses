@@ -8,7 +8,7 @@ import matplotlib.cm as cm
 
 from os.path import join
 
-from scripts.settings import REF_SEQS, MODELS, ORDER, FIGDIR
+from scripts.settings import REF_SEQS, MODELS, ORDER, FIGDIR, POSITIONS
 
 FIG_WIDTH = 7
 
@@ -75,6 +75,26 @@ def highlight_seq_heatmap(axes, matrix, dataset):
                 zorder=2,
             )
         )
+        
+def highlight_mut_heatmap(axes, matrix, dataset, position):
+    seq = REF_SEQS[dataset]
+    positions = POSITIONS[dataset]
+    pos_alleles = dict(zip(positions, seq))
+
+    axes.set_clip_on(False)
+    y = matrix.columns.tolist().index(pos_alleles[position])
+    x = y
+    axes.add_patch(
+        patches.Rectangle(
+            xy=(x, y),
+            width=1.0,
+            height=1.0,
+            lw=0.75,
+            fill=False,
+            edgecolor="black",
+            zorder=2,
+        )
+    )
 
 
 def plot_cv_curve(axes, data, metric="r2", lw=0.8):
@@ -148,6 +168,32 @@ def plot_decay_rates(axes, decay_rates, dataset, **kwargs):
     if decay_rates.shape[1] > 1:
         axes.set_yticklabels(columns, rotation=0, ha="center", fontsize=7)
         highlight_seq_heatmap(axes, decay_rates, dataset=dataset)
+    sns.despine(ax=axes, right=False, top=False)
+
+
+def plot_mutation_decay_rates(axes, decay_rates, position, dataset, **kwargs):
+    sns.heatmap(
+        decay_rates * 100,
+        ax=axes,
+        cmap="Blues",
+        vmin=0,
+        vmax=100,
+        cbar_kws={"label": r"Decay factor (%)"},
+        **kwargs
+    )
+    axes.set(
+        title="Position {}".format(position),
+        xlabel="Allele 1",
+        ylabel="Allele 2",
+        xticks=np.arange(decay_rates.shape[1]) + 0.5,
+        yticks=np.arange(decay_rates.shape[0]) + 0.5,
+        aspect="equal",
+    )
+    
+    rows, columns = decay_rates.index.values, decay_rates.columns.values
+    axes.set_xticklabels(rows, rotation=0, ha="center")
+    axes.set_yticklabels(columns, rotation=0, ha="center")
+    highlight_mut_heatmap(axes, decay_rates, dataset, position)
     sns.despine(ax=axes, right=False, top=False)
 
     

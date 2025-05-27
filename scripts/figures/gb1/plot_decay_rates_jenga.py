@@ -12,7 +12,7 @@ from scripts.settings import GB1, RESULTSDIR
 
 
 if __name__ == "__main__":
-    print('Loading GB1 site and allele specific decay rates from full model')
+    print("Loading GB1 site and allele specific decay rates from full model")
     dataset = GB1
     fpath = join(
         RESULTSDIR, "{}.connectedness_decay_rates.csv".format(dataset)
@@ -31,7 +31,7 @@ if __name__ == "__main__":
         height_ratios=(1, 18),
     )
 
-    print('Loading site specific decay factors from connectedness model')
+    print("Loading site specific decay factors from connectedness model")
     axes = subplots[0]
     plot_decay_rates(axes, connectedness, dataset, cbar=False)
     axes.set(
@@ -42,7 +42,7 @@ if __name__ == "__main__":
         ylabel="",
     )
 
-    print('Loading allele specific decay factors from Jenga model')
+    print("Loading allele specific decay factors from Jenga model")
     axes = subplots[1]
     plot_decay_rates(axes, jenga, dataset, cbar=False)
 

@@ -41,6 +41,13 @@ ALPHABET = {
     YEAST: ["A", "B"],
     SMN1: ["A", "C", "G", "U"],
 }
+LENGTH = {
+    GB1: 4,
+    AAV: 28,
+    YEAST: 83,
+    SMN1: 8,
+}
+
 MODELS = [
     "Additive",
     "Global epistasis",
@@ -67,6 +74,7 @@ MODEL_KEYS = {
     "Variance Component": "VC",
     "General Product": "GeneralProduct",
 }
+GB1_PEAK_SEQS = ["VDGV", "WWLG", "LICA"]
 
 
 # File paths

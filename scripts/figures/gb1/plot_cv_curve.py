@@ -12,19 +12,15 @@ if __name__ == "__main__":
     metric = "r2"
     fraction_width = 0.4
 
-    # Load data
     print('Loading {} R2 data'.format(dataset))
     fpath = join(RESULTSDIR, "{}.cv_curves.csv".format(dataset))
     data = pd.read_csv(fpath, index_col=0)
 
-    # Make figure
     print('Plotting R2 curves across models')
     fig, axes = plt.subplots(
         1, 1, figsize=(FIG_WIDTH * fraction_width, FIG_WIDTH * fraction_width)
     )
     plot_cv_curve(axes, data, metric=metric)
-
-    # Save figure
     fig.tight_layout()
     savefig(fig, "{}.{}".format(dataset, metric))
     

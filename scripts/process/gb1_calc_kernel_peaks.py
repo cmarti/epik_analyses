@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import torch
-import numpy as np
 import pandas as pd
 
-from os.path import exists
+from itertools import product
+from os.path import join
+
 from epik.src.kernel import (
     AdditiveKernel,
     PairwiseKernel,
@@ -14,13 +15,22 @@ from epik.src.kernel import (
     GeneralProductKernel,
 )
 from epik.src.utils import seq_to_one_hot
-from scripts.figures.settings import ALPHABET
+
+from scripts.utils import torch_load
+from scripts.settings import (
+    ALPHABET,
+    GB1,
+    LENGTH,
+    MODELS,
+    MODEL_KEYS,
+    PARAMSDIR,
+    RESULTSDIR,
+)
 
 
-def load_kernel(kernel, id=59):
-    n_alleles, seq_length = 20, 4
-    fpath = "output_new/gb1.{}.{}.model_params.pth".format(id, kernel)
-    params = torch.load(fpath, map_location=torch.device("cpu"))
+def load_kernel(kernel, n_alleles, seq_length, id=59):
+    fpath = join(PARAMSDIR, "gb1.{}.{}.model_params.pth".format(id, kernel))
+    params = torch_load(fpath)
 
     kernels = {
         "Additive": AdditiveKernel,
@@ -43,7 +53,7 @@ def load_kernel(kernel, id=59):
         kernel = kernels[kernel](
             n_alleles=n_alleles,
             seq_length=seq_length,
-            log_var0=torch.Tensor([0.]),
+            log_var0=torch.Tensor([0.0]),
             theta0=params["covar_module.theta"],
         )
     else:
@@ -54,34 +64,27 @@ def load_kernel(kernel, id=59):
 
 
 if __name__ == "__main__":
-    dataset = "gb1"
+    dataset = GB1
     alleles = sorted(ALPHABET[dataset])
+    length = LENGTH[dataset]
 
-    fpath = "datasets/{}.seqs.txt".format(dataset)
-    seqs1 = [line.strip() for line in open(fpath)]
+    seqs1 = ["".join(x) for x in product(alleles, repeat=length)]
     seqs2 = ["VDGV", "WWLG", "LICA"]
     x1 = seq_to_one_hot(seqs1, alleles)
     x2 = seq_to_one_hot(seqs2, alleles)
 
-    kernels = [
-        "Additive",
-        "Pairwise",
-        "Exponential",
-        "VC",
-        "Connectedness",
-        "Jenga",
-        "GeneralProduct",
-    ]
-    labels = {"VC": "Variance Component"}
+    kernels = [x for x in MODELS if x != "Global epistasis"]
 
     Ks = []
-    print("Computing covariances at {}".format(seqs2))
+    print("Computing covariances with {}".format(seqs2))
     with torch.no_grad():
         for kernel in kernels:
-            label = labels.get(kernel, kernel)
+            label = MODEL_KEYS.get(kernel, kernel)
 
-            print("\t{} kernel".format(label))
-            kernel = load_kernel(kernel)
+            print("\t{} kernel".format(kernel))
+            kernel = load_kernel(
+                label, n_alleles=len(alleles), seq_length=length
+            )
             variance = kernel.forward(x2[:1, :], x2[:1, :], diag=True)
 
             K = kernel.forward(x1, x2).numpy() / variance
@@ -89,5 +92,6 @@ if __name__ == "__main__":
             Ks.append(pd.DataFrame(K, columns=columns, index=seqs1))
 
     K = pd.concat(Ks, axis=1)
-    K.to_csv("output_new/gb1.kernels_at_peaks.csv")
-    print('Done')
+
+    K.to_csv(join(RESULTSDIR, "gb1.kernels_at_peaks.csv"))
+    print("Done")
