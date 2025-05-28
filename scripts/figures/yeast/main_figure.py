@@ -42,7 +42,6 @@ def get_chr_label_and_pos(chr_x):
 def add_gene_labels(axes, data, scale=1):
     genes = ["ENA1", "MKT1", "HAL9", "PHO84", "HAP1"]
     labels = data.iloc[np.isin(data["gene"], genes), :]
-    print(labels)
 
     dxs = [-1, -1, 0.8, 0., 0.5, -1, -0.5, 1, 1.5, -1]
     dys = [0, 1, 1.2, 0, 1, 0, 2, 2, 1, 0]

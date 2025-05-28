@@ -17,7 +17,6 @@ if __name__ == "__main__":
 
     fpath = join(RESULTSDIR, "{}.jenga_decay_rates.csv".format(dataset))
     jenga = pd.read_csv(fpath, index_col=0)
-    print(jenga)
 
     fig, subplots = plt.subplots(
         2,
@@ -29,6 +28,7 @@ if __name__ == "__main__":
     cbar_axes = fig.add_axes([0.875, 0.3, 0.02, 0.4])
     fig.subplots_adjust(right=0.85, left=0.1)
 
+    print("Plotting site specific decay factors")
     axes = subplots[0]
     plot_decay_rates(axes, connectedness, dataset, cbar=False)
     axes.set(
@@ -39,6 +39,7 @@ if __name__ == "__main__":
         ylabel="",
     )
 
+    print("Plotting allele specific decay factors")
     axes = subplots[1]
     plot_decay_rates(axes, jenga, dataset, cbar_ax=cbar_axes)
     axes.set_xticklabels(axes.get_xticklabels(), rotation=90)
