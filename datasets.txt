@@ -1,4 +1,0 @@
-smn1
-#gb1
-#yeast
-#ribozyme
