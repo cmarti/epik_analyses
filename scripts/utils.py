@@ -1,9 +1,8 @@
-from os.path import join
-
 import pandas as pd
 import numpy as np
 import torch
 
+from os.path import join, exists
 from gpmap.utils import read_edges
 from torch.distributions.transforms import CorrCholeskyTransform
 from scripts.settings import (
@@ -106,10 +105,14 @@ def get_jenga_mut_decay_rates(decay_rates):
 def load_gb1_visualization():
     print("Loading correlation with {} under all models".format(GB1_PEAK_SEQS))
     fpath = join(RESULTSDIR, "gb1.kernels_at_peaks.csv")
+    if not exists(fpath):
+        fpath = join(RESULTSDIR, "gb1.kernels_at_peaks.csv.gz")
     kernel = pd.read_csv(fpath, index_col=0)
 
     print("Loading visualization coordinates")
     fpath = join(RESULTSDIR, "gb1.jenga.nodes.csv")
+    if not exists(fpath):
+        fpath = join(RESULTSDIR, "gb1.jenga.nodes.csv.gz")
     nodes = pd.read_csv(fpath, index_col=0)
     edges = read_edges(fpath=join(RESULTSDIR, "gb1.jenga.edges.npz"))
     nodes = nodes.join(kernel)
