@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import gpmap.plot.mpl as mplot
 
-from os.path import join
+from os.path import join, exists
 from matplotlib.gridspec import GridSpec
 from gpmap.space import SequenceSpace
 from scripts.settings import RESULTSDIR, DATADIR, YEAST
@@ -226,6 +226,8 @@ if __name__ == "__main__":
 
     print("Loading reconstructed landscape")
     fpath = join(RESULTSDIR, "{}.reconstruction.csv".format(dataset))
+    if not exists(fpath):
+        fpath = join(RESULTSDIR, "{}.reconstruction.csv.gz".format(dataset))
     landscape = pd.read_csv(fpath, index_col=0)
 
     print("Loading model estimates")
