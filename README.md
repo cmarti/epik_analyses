@@ -1,12 +1,29 @@
-### Description
-
-This repository contains code for generating R2 curves for a range of training proportions across different datasets for evaluating different kernels for gaussian process regression on sequence-function releationships
+# Learning sequence-function relationships with scalable, interpretable Gaussian processes
 
 
-### Requirements
+This repository contains code to reproduce the analyses and figures from our 
+publication on using Gaussian process models to infer sequence-function
+relationships. For running our code on your own data see our [EpiK](https://github.com/cmarti/epik) repository.
+
+- Zhou J., Martí-Gómez C., Petti S., McCandlish D.M. (2025) Learning sequence-function relationships with scalable, interpretable Gaussian processes. biorxiv
+
+The repository contains a series of folders with different contents
+
+- `data`: this folder contains input data from other sources required to do all calculations
+- `scripts`: this folder contains all the scripts required to reproduce the analyses in the paper
+  - `cluster`: this subfolder contains bash scripts to send GPU jobs in our cluster
+  - `figures`: this subfolder contains python scripts to make all the figures
+  - `process`: this subfolder contains python scripts to pre-process the data and process files in the `output` folder for making the figures
+  - `scratch`: this subfolder contains old scripts used during the exploratory analyses and are not necessarily consistent with the current structure of the repository. They are only kept for our record. 
+- `results`: this folder contains all the results files used for creating the figures
+- `output`: this folder will contain the intermediate output files from fitting the models
+- `figures`: this folder will contain all the figure panels generated with the scripts
+
+
+### Requirements: UPDATE needed
 
 - [gpmap-tools](https://github.com/cmarti/gpmap-tools)
-- [epik](https://github.com/cmarti/epik)
+- [EpiK](https://github.com/cmarti/epik)
 
 Create a new environment
 
@@ -37,28 +54,25 @@ Download repository
 git clone git@github.com:cmarti/epik_analyses.git
 ```
 
+### Figures
 
-### Datasets
-
-The datasets included can be found in the folder `datasets`. Each consists of a CSV file with the sequence and their associated measurement with the uncertainty. The scripts will only compute those that are not commented out in the file `datasets.txt`, which can be sued to compute the CV curves on subsets of the datasets
-
-### Scripts
-
-The first script splits each of the dataset into training and validation sets with different proportions to evaluate the importance of the amount of data for prediction and whether performance saturates at a given concentration of data or continuously increases. 
+This repository provides all the code and data required to reproduce all the 
+figures from our study in the `scripts/figures` folder as shown in `make_figures.sh`,
+which can be run as follows:
 
 ```bash
-bash 1_split.sh
+bash make_figures.sh
 ```
 
-The second script submits independent jobs using SGE for fitting Gaussian process regression models under different kernels to each of the generated training and validation subsets. It can be easily modified to run sequentially on a single machine. 
+### Computational analysis
 
-```bash
-bash 2_fit_models.sh
-```
+The file `make_analysis.sh` shows how to run the different scripts in order to reproduce our analyses. This file is aimed to guide the analysis but some jobs
+or scripts require other jobs to finish to be able to run. 
 
-The third script evaluates the performance of every model fit on the test data and writes a table with the R2 and other metrics for each of the training and test subsets. 
+> **_NOTE:_** We run [EpiK](https://github.com/cmarti/epik) using our V100 GPUs from the Cold Spring Harbor Laboratory high performance computing cluster. The provided scripts at `scripts/cluster` are tailored to our system and may need to be adapted to run in a different computing ecosystem. 
 
-```bash
-bash 3_calc_r2s.sh
-```
 
+### Yeast genotype encoding
+RM = A
+BY = B
+RM pump is the bad one
