@@ -1,37 +1,29 @@
 source activate.sh
 
-echo "=== Figure 1: GB1 dataset ==="
-python scripts/figures/gb1/plot_cv_curve.py
-python scripts/figures/gb1/plot_decay_rates_jenga.py
-python scripts/figures/gb1/plot_decay_rates_gp.py
-python scripts/figures/gb1/plot_jenga_visualization.py
+echo "=== Data preprocessing ==="
+python scripts/process/smn1_calc_vj_covariances.py
+python scripts/process/yeast_extract_qtls_prob.py
+python scripts/process/yeast_extract_snps_annotations.py
+python scripts/process/yeast_get_dataset.py
+python scripts/process/yeast_get_pred.py
 
-echo "=== Supplementary figures: GB1 dataset ==="
-python scripts/figures/gb1/supp_plot_decay_rates.py
-python scripts/figures/gb1/supp_plot_kernels_visualization.py
+echo "=== Cross-validation analysis ==="
+bash scripts/cluster/split_data.sh
+bash scripts/cluster/fit_models_cv.sh
+bash scripts/cluster/fit_global_epistasis_cv.sh
+bash scripts/cluster/predict_models_cv.sh
 
-echo "=== Figure 2: SMN1 dataset ==="
-python scripts/figures/smn1/plot_cv_curves_dist_corr.py
-python scripts/figures/smn1/plot_decay_rates.py
-python scripts/figures/smn1/plot_predictions.py
+echo "=== Full models ==="
+bash scripts/cluster/fit_models.sh
+bash scripts/cluster/fit_global_epistasis.sh
+bash scripts/cluster/predict_models.sh
+bash scripts/cluster/contrast_models.sh
 
-echo "=== Supplementary figures: SMN1 dataset ==="
-python scripts/figures/smn1/supp_plot_smn1_ge_params.py
-python scripts/figures/smn1/supp_plot_decay_rates.py
-
-echo "=== Figure 3: AAV2 dataset ==="
-python scripts/figures/aav/plot_cv_curve.py
-python scripts/figures/aav/plot_decay_rates.py
-python scripts/figures/aav/plot_decay_rates_576.py
-python scripts/figures/aav/plot_data_validations.py
-
-echo "=== Supplementary figures: AAV2 dataset ==="
-python scripts/figures/aav/supp_plot_decay_rates.py
-python scripts/figures/aav/supp_plot_mut_effs_post.py
-python scripts/figures/aav/supp_plot_mut_effs_heatmaps.py
-
-echo "=== Figure 4: Yeast dataset ==="
-python scripts/figures/yeast/main_figure.py
-
-echo "=== Supplementary figures: Yeast dataset ==="
-python scripts/figures/yeast/supp_compare_mut_eff.py
+echo "=== Processing results ==="
+python scripts/process/calc_cv_curves.py
+python scripts/process/calc_decay_factors.py
+python scripts/process/gb1_calc_visualization.py
+python scripts/process/gb1_calc_kernel_peaks.py
+python scripts/process/aav_get_mut_effs.py
+python scripts/process/yeast_process_results.py
+python scripts/process/yeast_prep_visualization.py
