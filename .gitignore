@@ -1,5 +1,6 @@
-cpu
-logs
 output
-splits
-splits.csv
+old
+figures
+manuscript
+presentation
+data
