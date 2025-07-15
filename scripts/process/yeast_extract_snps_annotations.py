@@ -41,7 +41,10 @@ if __name__ == '__main__':
                 continue
 
             start, end = int(items[3]), int(items[4])
-            d = min(abs(start - pos), abs(end - pos))
+            if start <= pos <= end:
+                d = 0
+            else:
+                d = min(abs(start - pos), abs(end - pos))
             attrs = items[-1].split(';')
             attrs = {x.split('=')[0]: x.split('=')[-1] for x in attrs}
             if d < min_d:
