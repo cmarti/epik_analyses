@@ -54,13 +54,13 @@ def add_mut_labels(axes, data, x, y):
 if __name__ == "__main__":
     bcs = ["RM_ena1RM", "BY_ena1RM", "RM_ena1BY", "BY_ena1BY"]
     labels = [
-        "ENA1-RM in RM background",
-        "ENA1-RM in BY background",
-        "ENA1-BY in RM background",
-        "ENA1-BY in BY background",
+        "$ENA1^{RM}$ in RM background",
+        "$ENA1^{RM}$ in BY background",
+        "$ENA1^{BY}$ in RM background",
+        "$ENA1^{BY}$ in BY background",
     ]
-    
-    print('Loading results')
+
+    print("Loading results")
     fpath = join(RESULTSDIR, "qtls_li_hq_results.csv")
     data = pd.read_csv(fpath)
     data = data.loc[data["gene"] != "ENA1", :]
@@ -70,9 +70,9 @@ if __name__ == "__main__":
     )
     subplots = subplots.flatten()
 
-    print('Plotting mutational effects across genetic backgrounds')
+    print("Plotting mutational effects across genetic backgrounds")
     for (i, j), axes in zip(combinations(np.arange(4), 2), subplots):
-        print('\tComparing {} vs {}'.format(labels[i], labels[j]))
+        print("\tComparing {} vs {}".format(labels[i], labels[j]))
         bc1, label1 = bcs[i], labels[i]
         bc2, label2 = bcs[j], labels[j]
         axes.errorbar(
