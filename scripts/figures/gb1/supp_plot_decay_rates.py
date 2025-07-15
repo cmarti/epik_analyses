@@ -26,19 +26,24 @@ if __name__ == "__main__":
     print("Plotting mutation specific decay rates in {}".format(dataset))
     models = ["jenga", "general_product"]
     for axes_row, pos in zip(subplots, positions):
-        
-        print('\tPosition {}'.format(pos))
+        print("\tPosition {}".format(pos))
         for axes, model in zip(axes_row, models):
             fname = "{}.{}_decay_rates.{}.csv".format(dataset, model, pos)
             df = pd.read_csv(join(RESULTSDIR, fname), index_col=0)
             plot_mutation_decay_rates(
-                axes, df, position=pos, dataset=dataset, cbar_ax=cbar_axes
+                axes,
+                df,
+                position=pos,
+                dataset=dataset,
+                cbar_ax=cbar_axes,
+                cbar_kws={"label": "Decay factor (%)"},
             )
             title = "{} model; Position {}"
             title = title.format(model.replace("_", " ").capitalize(), pos)
             axes.set(title=title)
 
     sns.despine(ax=cbar_axes, right=False, top=False)
+    cbar_axes.set_ylabel("Decay factor (%)")
     fig.subplots_adjust(top=0.975, bottom=0.05, left=0.1)
 
     savefig(fig, "{}.decay_factors_supp".format(dataset))
