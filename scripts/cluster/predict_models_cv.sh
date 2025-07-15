@@ -10,7 +10,7 @@ t="1-60"
 # Commands
 activate="conda activate epik ; module load cudnn8.1-cuda11.2/8.1.1.33 ;"
 gpu_options="--gpu -m $ngpu"     
-epik="python /grid/mccandlish/home_norepl/martigo/programs/epik/bin/EpiK.py $gpu_options --train_noise -n 0"
+epik="python /grid/mccandlish/home_norepl/martigo/programs/epik/epik/bin/EpiK.py $gpu_options --train_noise -n 0"
 submit="qsub -cwd -l gpu=$ngpu -tc $tc -t $t" 
 
 # Run

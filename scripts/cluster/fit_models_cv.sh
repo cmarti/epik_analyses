@@ -14,7 +14,7 @@ gpu_options="--gpu -m $ngpu"
 
 # Commands
 activate="conda activate epik ; module load cudnn8.1-cuda11.2/8.1.1.33 ;"
-epik="python /grid/mccandlish/home/martigo/programs/epik/bin/EpiK.py -n $n -r $lr $gpu_options --train_noise --n_lanczos $n_lanczos --num_trace_samples 100"
+epik="python /grid/mccandlish/home/martigo/programs/epik/epik/bin/EpiK.py -n $n -r $lr $gpu_options --train_noise --n_lanczos $n_lanczos --num_trace_samples 100"
 submit="qsub -cwd -l gpu=$ngpu -tc $tc -t $t" 
 
 # Run
