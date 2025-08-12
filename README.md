@@ -1,4 +1,4 @@
-# Learning Sequence-Function Relationships with Scalable, Interpretable Gaussian Processes
+# Learning sequence-function relationships with scalable, interpretable Gaussian processes
 
 This repository contains the code to reproduce the analyses and figures from our publication on using Gaussian process models to infer sequence-function relationships.
 
