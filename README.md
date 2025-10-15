@@ -4,7 +4,7 @@ This repository contains the code to reproduce the analyses and figures from our
 
 For running our code on your own data, please refer to our [EpiK](https://github.com/cmarti/epik) repository.
 
-- Zhou J., Martí-Gómez C., Petti S., McCandlish D.M. (2025). Learning sequence-function relationships with scalable, interpretable Gaussian processes. bioRxiv.
+- Zhou J., Martí-Gómez C., Petti S., McCandlish D.M. (2025). Learning sequence-function relationships with scalable, interpretable Gaussian processes. bioRxiv. doi: [10.1101/2025.08.15.670613](https://doi.org/10.1101/2025.08.15.670613)
 
 ## Repository Structure
 
